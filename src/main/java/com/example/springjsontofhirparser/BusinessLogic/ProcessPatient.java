@@ -54,9 +54,9 @@ public class ProcessPatient implements Runnable{
 
     public Dictionary getDictionaryByCode(String code){
         //this is added/////////////////////////
-        if(dictionaryHashMap.get(code)!=null){
-            return dictionaryHashMap.get(code);
-        }
+//        if(dictionaryHashMap.get(code)!=null){
+//            return dictionaryHashMap.get(code);
+//        }
         ////////////////////////////////////
         List<Dictionary> dictionaryList=dictionaryRepository.findDictionaryByValues(code);
         if(dictionaryList!=null && dictionaryList.size()!=0){
@@ -66,9 +66,9 @@ public class ProcessPatient implements Runnable{
     }
 
     public ValueSetDictionary getValueSetDictionaryByCode(String code){
-        if(valueSetDictionaryHashMap.get(code)!=null){
-            return valueSetDictionaryHashMap.get(code);
-        }
+//        if(valueSetDictionaryHashMap.get(code)!=null){
+//            return valueSetDictionaryHashMap.get(code);
+//        }
 
         List<ValueSetDictionary> valueSetDictionaryList=valueSetRepository.getValueSetDictionaryByCode(code);
         return (valueSetDictionaryList.size()!=0 && valueSetDictionaryList.get(0) != null) ? valueSetDictionaryList.get(0) : new ValueSetDictionary();
@@ -121,7 +121,8 @@ public class ProcessPatient implements Runnable{
             //Commenting as Faizan bhai said.
             if (payersList.isEmpty() || payersList.size() == 0) {
 //                payersList.add(insuranceList.get(insuranceList.size() - 1).getPayerCode());
-                if(null!=insuranceList.get(insuranceList.size() - 1).getCoverageStartDateString() && !insuranceList.get(insuranceList.size() - 1).getCoverageStartDateString().equals("20240101") && insuranceList.get(insuranceList.size() - 1).getCoverageEndDateString().substring(0,3).equals("2022")){
+//                String date=insuranceList.get(insuranceList.size() - 1).getCoverageEndDateString().substring(0,4);
+                if(null!=insuranceList.get(insuranceList.size() - 1).getCoverageStartDateString() && !insuranceList.get(insuranceList.size() - 1).getCoverageStartDateString().equals("20240101") && insuranceList.get(insuranceList.size() - 1).getCoverageEndDateString().substring(0,4).equals("2022")){
                     mapSpecialPayerCodes(payersList,insuranceList.get(insuranceList.size() - 1).getPayerCode());
                 }
             }
