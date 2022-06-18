@@ -122,14 +122,16 @@ public class ProcessPatient implements Runnable{
             if (payersList.isEmpty() || payersList.size() == 0) {
 //                payersList.add(insuranceList.get(insuranceList.size() - 1).getPayerCode());
 //                String date=insuranceList.get(insuranceList.size() - 1).getCoverageEndDateString().substring(0,4);
-                if((null!=insuranceList.get(insuranceList.size() - 1).getCoverageStartDateString()) ) {
+                String lastCoverageObjectStartDate=insuranceList.get(insuranceList.size() - 1).getCoverageStartDateString();
+                String lastCoverageObjectEndDate=insuranceList.get(insuranceList.size() - 1).getCoverageEndDateString();
+                if((null!=lastCoverageObjectStartDate) && (null!=lastCoverageObjectEndDate )) {
 
                     if(getDictionaryByCode(insuranceList.get(insuranceList.size() - 1).getPayerCode()).getOid().equals(Constants.CODE_TYPE_COMMERCIAL)){
-                        if (!insuranceList.get(insuranceList.size() - 1).getCoverageStartDateString().equals("20240101") && (insuranceList.get(insuranceList.size() - 1).getCoverageEndDateString().substring(0, 4).equals("2022")   ||  insuranceList.get(insuranceList.size() - 1).getCoverageEndDateString().substring(0, 4).equals("2020") ||insuranceList.get(insuranceList.size() - 1).getCoverageEndDateString().substring(0, 4).equals("2021")   )) {
+                        if (!lastCoverageObjectStartDate.equals("20240101") && (lastCoverageObjectEndDate.substring(0, 4).equals("2022")   ||  lastCoverageObjectEndDate.substring(0, 4).equals("2020") || lastCoverageObjectEndDate.substring(0, 4).equals("2021")   )) {
                             mapSpecialPayerCodes(payersList, insuranceList.get(insuranceList.size() - 1).getPayerCode());
                         }
                     }
-                    else if (!insuranceList.get(insuranceList.size() - 1).getCoverageStartDateString().equals("20240101") && insuranceList.get(insuranceList.size() - 1).getCoverageEndDateString().substring(0, 4).equals("2022")) {
+                    else if ((!lastCoverageObjectStartDate.equals("20240101") ) && (lastCoverageObjectEndDate.substring(0, 4).equals("2022"))) {
                         mapSpecialPayerCodes(payersList, insuranceList.get(insuranceList.size() - 1).getPayerCode());
                     }
                 }
