@@ -53,11 +53,11 @@ public class ProcessPatient implements Runnable{
     BundleRepository bundleRepository;
 
     public Dictionary getDictionaryByCode(String code){
-        //this is added/////////////////////////
+        //this is added------------------
 //        if(dictionaryHashMap.get(code)!=null){
 //            return dictionaryHashMap.get(code);
 //        }
-        ////////////////////////////////////
+        //------------------------
         List<Dictionary> dictionaryList=dictionaryRepository.findDictionaryByValues(code);
         if(dictionaryList!=null && dictionaryList.size()!=0){
             return dictionaryList.get(0);
@@ -92,6 +92,17 @@ public class ProcessPatient implements Runnable{
         return false;
     }
 
+    String getHospiceFlag(List<Premium> premiumList){
+        if(null!=premiumList && premiumList.size()>0) {
+            for (Premium premium : premiumList) {
+                if (null != premium.getHospice() && premium.getHospice().equals("Y") &&  null!=premium.getHospiceDateString() && premium.getHospiceDateString().substring(0, 4).equals("2022")) {
+                    return "Y";
+                }
+            }
+        }
+        return "N";
+    }
+
     void mapSpecialPayerCodes(List<String> payersList,String payerCode){
         if(payerCode.equals("MD") || payerCode.equals("MDE") || payerCode.equals("MLI")|| payerCode.equals("MRB") || payerCode.equals("MMP")){
             payersList.add("MCD");
@@ -103,6 +114,24 @@ public class ProcessPatient implements Runnable{
             payersList.add(payerCode);
         }
     }
+
+    public List<PayerInfo> mapPayersInfoInList(List<Insurance>insuranceList){
+        List<PayerInfo> payerInfoList=new LinkedList<>();
+        if(insuranceList != null && insuranceList.size() != 0){
+            for (int i = 0; i < insuranceList.size(); i++) {
+                PayerInfo payerInfo=new PayerInfo();
+                payerInfo.setPayerCode(insuranceList.get(i).getPayerCode());
+                payerInfo.setCoverageStartDate(insuranceList.get(i).getCoverageStartDate());
+                payerInfo.setCoverageEndDate(insuranceList.get(i).getCoverageEndDate());
+                payerInfo.setCoverageStartDateString(insuranceList.get(i).getCoverageStartDateString());
+                payerInfo.setCoverageEndDateString(insuranceList.get(i).getCoverageEndDateString());
+
+                payerInfoList.add(payerInfo);
+            }
+        }
+        return payerInfoList;
+    }
+
 
     public List<String> mapPayersCodeInList(List<Insurance>insuranceList){
         List<String> payersList=new LinkedList<>();
@@ -120,8 +149,7 @@ public class ProcessPatient implements Runnable{
             //If no payer matches the above condition than the recent payer code in appended in payerlist
             //Commenting as Faizan bhai said.
             if (payersList.isEmpty() || payersList.size() == 0) {
-//                payersList.add(insuranceList.get(insuranceList.size() - 1).getPayerCode());
-//                String date=insuranceList.get(insuranceList.size() - 1).getCoverageEndDateString().substring(0,4);
+
                 String lastCoverageObjectStartDate=insuranceList.get(insuranceList.size() - 1).getCoverageStartDateString();
                 String lastCoverageObjectEndDate=insuranceList.get(insuranceList.size() - 1).getCoverageEndDateString();
                 if((null!=lastCoverageObjectStartDate) && (null!=lastCoverageObjectEndDate )) {
@@ -223,8 +251,6 @@ public class ProcessPatient implements Runnable{
                 coverage.setId(epEncounter.getPatientId());
                 coverage.getPolicyHolder().setReference("Patient/"+epEncounter.getPatientId());
 
-//                coverage.getPeriod().setStart(getFormattedDate(insurance.getCoverageStartDateString()));
-//                coverage.getPeriod().setEnd(getFormattedDate(insurance.getCoverageEndDateString()));
 
                 coverage.getPeriod().setStart(insurance.getCoverageStartDateTime()!=null? Constants.getIsoDateInRequiredFormat(insurance.getCoverageStartDateTime()):"");
                 coverage.getPeriod().setEnd(insurance.getCoverageEndDateTime()!=null? Constants.getIsoDateInRequiredFormat(insurance.getCoverageEndDateTime()):"");
@@ -243,10 +269,7 @@ public class ProcessPatient implements Runnable{
 
                 Type type=new Type();
                 Coding coding=new Coding();
-//                Dictionary dictionary=getDictionaryByCode(insurance.getPayerCode());
-//                coding.setSystem("urn:oid:"+dictionary.getOid());
-//                coding.setDisplay(dictionary.getName());
-//                coding.setCode(insurance.getPayerCode());
+
                 mapCoverageCodingObject(coding,insurance.getPayerCode());
                 type.getCoding().add(coding);
 
@@ -298,21 +321,11 @@ public class ProcessPatient implements Runnable{
                         procedure.setStatus(procedurePerformed.getEndDate() == null ? "in-progress" : "completed");
 
                         Code code = new Code();
-//                    Dictionary dictionary=getDictionaryByCode(procedurePerformed.getProcedureCode());
-//                    code.setText(dictionary.getName());
+
                         Coding coding = new Coding();
                         mapCodingObjectByDictionaries(coding, procedurePerformed.getProcedureCode());
                         code.getCoding().add(coding);
-//                    for(int j=0;j<epEncounter.getLabTestResult().size();j++){
-//                        LabTestResults labTestResults=epEncounter.getLabTestResult().get(j);
-////                        Dictionary labTestResultsDictionary=getDictionaryByCode(labTestResults.getTestCode());
-//                        Coding coding=new Coding();
-////                        coding.setSystem("urn:oid:"+labTestResultsDictionary.getOid());
-////                        coding.setDisplay(labTestResultsDictionary.getName());
-////                        coding.setCode(labTestResults.getTestCode());
-//                        mapCodingObjectByDictionaries(coding,labTestResults.getTestCode());
-//                        code.getCoding().add(coding);
-//                    }
+
 
 
                         procedure.setCode(code);
@@ -344,9 +357,8 @@ public class ProcessPatient implements Runnable{
 
                     Problem problem= epEncounter.getProblem().get(i);
                     Condition condition=new Condition();
-                    condition.setId(epEncounter.getPatientId());
+                    condition.setId("Condition/"+problem.getProblemCode());
 
-//CODE AUR SYSTEM DAALNA BS
                     ClinicalStatusCoding clinicalStatusCoding=new ClinicalStatusCoding();
                     clinicalStatusCoding.setSystem("http://terminology.hl7.org/CodeSystem/condition-clinical");
                     clinicalStatusCoding.setCode("active");
@@ -365,12 +377,9 @@ public class ProcessPatient implements Runnable{
                     problemCategoryType.getCoding().add(problemCategoryCoding);
                     condition.getCategory().add(problemCategoryType);
 
-//                Dictionary problemCodeDictionary=getDictionaryByCode(problem.getProblemCode());
                     Code problemCode=new Code();
                     Coding problemCoding=new Coding();
-//                problemCoding.setDisplay(problemCodeDictionary.getName());
-//                problemCoding.setSystem("urn:oid:"+problemCodeDictionary.getOid());
-//                problemCoding.setCode(problem.getProblemCode());
+
                     mapCodingObjectByDictionaries(problemCoding,problem.getProblemCode());
                     problemCode.getCoding().add(problemCoding);
                     condition.setCode(problemCode);
@@ -386,7 +395,7 @@ public class ProcessPatient implements Runnable{
                     ResourceChild resourceChild=new ResourceChild();
                     resourceChild.setResource(condition);
                     resourceList.add(resourceChild);
-                    //
+
                 }
             }
         }
@@ -396,17 +405,13 @@ public class ProcessPatient implements Runnable{
         if(vitalSignsChildsList!=null && vitalSignsChildsList.size()!=0  ) {
             for (VitalSignsChilds vitalSignsChild : vitalSignsChildsList) {
                 Component component = new Component();
-//                Dictionary dictionary = getDictionaryByCode(vitalSignsChild.getLoinc());
                 Code code = new Code();
                 List<Coding> codingList = new LinkedList<>();
                 Coding coding = new Coding();
-//                coding.setSystem(dictionary.getOid());
-//                coding.setCode(vitalSignsChild.getLoinc());
-//                coding.setDisplay(dictionary.getName());
+
                 mapCodingObjectByDictionaries(coding,vitalSignsChild.getLoinc());
                 codingList.add(coding);
                 code.setCoding(codingList);
-//                code.setText(dictionary.getName());
 
                 component.setCode(code);
 
@@ -442,58 +447,8 @@ public class ProcessPatient implements Runnable{
         return componentList;
     }
 
-//mapObservationFunction
 
-//    void mapObservations(Bundle bundle,EpEncounter epEncounter,List<Resource> resourceList){
-//        if(epEncounter !=null && epEncounter.getProcedurePerformed()!=null) {
-//            for(int i=0;i<epEncounter.getProcedurePerformed().size();i++){
-//                ProcedurePerformed procedurePerformed= epEncounter.getProcedurePerformed().get(i);
-//                Observation observation=new Observation();
-//                observation.setId(epEncounter.getPatientId());
-//                observation.setStatus(procedurePerformed.getEndDate()==null?"final":"final");//for the time being ye rakha
-//
-//                Code code=new Code();
-////                Dictionary dictionary=getDictionaryByCode(procedurePerformed.getProcedureCode());
-////                code.setText(dictionary.getName());
-//
-//                for(int j=0;j<epEncounter.getLabTestResult().size();j++){
-//                    LabTestResults labTestResults=epEncounter.getLabTestResult().get(j);
-////                    Dictionary labTestResultsDictionary=getDictionaryByCode(labTestResults.getTestCode());
-//                    Coding coding=new Coding();
-////                    coding.setSystem("urn:oid:"+labTestResultsDictionary.getOid());
-////                    coding.setDisplay(labTestResultsDictionary.getName());
-////                    coding.setCode(labTestResults.getTestCode());
-//                    mapCodingObjectByDictionaries(coding,labTestResults.getTestCode());
-//                    code.getCoding().add(coding);
-//                }
-//
-//                observation.setCode(code);
-//
-//                observation.getSubject().setReference("Patient/"+epEncounter.getPatientId());
-//
-//                observation.getEncounter().setReference("Encounter/"+getEncounterCode(epEncounter));
-//
-//                observation.getEffectivePeriod().setStart(procedurePerformed.getPerformedDateTime()!=null?Constants.getIsoDateInRequiredFormat(procedurePerformed.getPerformedDateTime()):"");
-//                observation.getEffectivePeriod().setEnd(procedurePerformed.getPerformedDateTime()!=null?Constants.getIsoDateInRequiredFormat(procedurePerformed.getPerformedDateTime()):"");//same because we dont have end ISO Date
-//
-//                observation.setIssued(procedurePerformed.getPerformedDateTime()!=null?Constants.getIsoDateInRequiredFormat(procedurePerformed.getPerformedDateTime()):"");
-//
-//                List<Performer>performerList=new LinkedList<>();
-//                Actor actor=new Actor();
-//                actor.setReference("Practitioner/"+epEncounter.getProviderId());
-//                actor.setDisplay("Practitioner/"+epEncounter.getProviderId());
-//                Performer performer=new Performer();
-//                performer.setActor(actor);
-//                performerList.add(performer);
-//                observation.setPerformer(performerList);
-//
-//                observation.setComponent(mapVitalSigns(epEncounter.getVitalSigns()));
-//
-//                ResourceChild resourceChild=new ResourceChild();
-//                resourceChild.setResource(observation);
-//                resourceList.add(resourceChild);            }
-//        }
-//    }
+
 
     void mapObservations(Bundle bundle,EpEncounter epEncounter,List<Resource> resourceList){
         if(epEncounter !=null && epEncounter.getLabTestResult()!=null) {
@@ -507,19 +462,7 @@ public class ProcessPatient implements Runnable{
                 Coding coding=new Coding();
                 mapCodingObjectByDictionaries(coding,labTestResults.getTestCode());
                 code.getCoding().add(coding);
-//                Dictionary dictionary=getDictionaryByCode(procedurePerformed.getProcedureCode());
-//                code.setText(dictionary.getName());
 
-//                for(int j=0;j<epEncounter.getLabTestResult().size();j++){
-//                    LabTestResults labTestResults=epEncounter.getLabTestResult().get(j);
-////                    Dictionary labTestResultsDictionary=getDictionaryByCode(labTestResults.getTestCode());
-//                    Coding coding=new Coding();
-////                    coding.setSystem("urn:oid:"+labTestResultsDictionary.getOid());
-////                    coding.setDisplay(labTestResultsDictionary.getName());
-////                    coding.setCode(labTestResults.getTestCode());
-//                    mapCodingObjectByDictionaries(coding,labTestResults.getTestCode());
-//                    code.getCoding().add(coding);
-//                }
 
                 observation.setCode(code);
 
@@ -531,6 +474,11 @@ public class ProcessPatient implements Runnable{
                 observation.getEffectivePeriod().setEnd(labTestResults.getReportedDateTime()!=null?Constants.getIsoDateInRequiredFormat(labTestResults.getReportedDateTime()):"");//same because we dont have end ISO Date
 
                 observation.setIssued(labTestResults.getReportedDateTime()!=null?Constants.getIsoDateInRequiredFormat(labTestResults.getReportedDateTime()):"");
+
+                observation.getValueQuantity().setValue(labTestResults.getNumericResult());
+                observation.getValueQuantity().setUnit(labTestResults.getNumericResultUnit());
+                observation.getValueQuantity().setSystem("http://unitsofmeasure.org");
+
 
                 List<Performer>performerList=new LinkedList<>();
                 Actor actor=new Actor();
@@ -564,10 +512,7 @@ public class ProcessPatient implements Runnable{
                     encounter.setStatus(encounterStatus.getEndDate() == null ? "in-progress" : "finished");
 
                     Coding classCoding = new Coding();
-//                Dictionary dictionary=getDictionaryByCode(encounterStatus.getCode());
-//                classCoding.setSystem("urn:oid:"+dictionary.getOid());
-//                classCoding.setDisplay(dictionary.getName());
-//                classCoding.setCode(encounterStatus.getCode());
+
                     mapCodingObjectByDictionaries(classCoding, encounterStatus.getCode());
                     encounter.set_class(classCoding);
 
@@ -581,25 +526,29 @@ public class ProcessPatient implements Runnable{
 
                     if (epEncounter.getProblem() != null) {
                         for (Problem problem : epEncounter.getProblem()) {
-                            Diagnosis diagnosis = new Diagnosis();
-                            Coding diagnosisCoding = new Coding();
+                            if (problem.getPosCode()==null || !problem.getPosCode().equals("81")) {
+
+                                Diagnosis diagnosis = new Diagnosis();
+                                diagnosis.getCondition().setReference("Condition/"+problem.getProblemCode());
+                                Coding diagnosisCoding = new Coding();
 //                        dictionary = getDictionaryByCode(problem.getProblemCode());
 //                        if (dictionary != null) {
 //                            diagnosisCoding.setSystem("urn:oid:" + dictionary.getOid());
 //                            diagnosisCoding.setDisplay(dictionary.getName());
 //                        }
 //                        diagnosisCoding.setCode(encounterStatus.getCode());
-                            mapCodingObjectByDictionaries(diagnosisCoding, problem.getProblemCode());
+                                mapCodingObjectByDictionaries(diagnosisCoding, problem.getProblemCode());
 
-                            Type diagnosisUse = new Type();
-                            List<Coding> diagnosisCodingList = new LinkedList<>();
-                            diagnosisCodingList.add(diagnosisCoding);
-                            diagnosisUse.setCoding(diagnosisCodingList);
+                                Type diagnosisUse = new Type();
+                                List<Coding> diagnosisCodingList = new LinkedList<>();
+                                diagnosisCodingList.add(diagnosisCoding);
+                                diagnosisUse.setCoding(diagnosisCodingList);
 
-                            diagnosis.setUse(diagnosisUse);
+                                diagnosis.setUse(diagnosisUse);
 //                        diagnosis.getCondition().setReference("Condition/" + dictionary.getName());
-                            diagnosis.setRank(problem.getProblemPriority() != null ? Integer.parseInt(problem.getProblemPriority()) : 0);
-                            encounter.getDiagnosis().add(diagnosis);
+                                diagnosis.setRank(problem.getProblemPriority() != null ? Integer.parseInt(problem.getProblemPriority()) : 0);
+                                encounter.getDiagnosis().add(diagnosis);
+                            }
                         }
                     }
 
@@ -784,7 +733,8 @@ public class ProcessPatient implements Runnable{
 
             bundle.setGender(epEncounter.getGender().equals("F") ? "female" : "male");
             bundle.setBirthDate(getFormattedDate(epEncounter.getBirthDateString()));
-            bundle.setPayerCodes(mapPayersCodeInList(epEncounter.getInsurance()));
+            bundle.setPayerInfo(mapPayersInfoInList(epEncounter.getInsurance()));
+            bundle.setHospiceFlag(getHospiceFlag(epEncounter.getPremium()));
 
             // entry.setResource(resourceList);
             bundle.getEntry().add(resourceList);

@@ -74,8 +74,8 @@ public class DataService {
 
             bundle.setGender(epEncounter.getGender().equals("F")? "female":"male");
             bundle.setBirthDate(processPatient.getFormattedDate(epEncounter.getBirthDateString()));
-            bundle.setPayerCodes(processPatient.mapPayersCodeInList(epEncounter.getInsurance()));
-            //entry.setResource(resourceList);
+            bundle.setPayerInfo(processPatient.mapPayersInfoInList(epEncounter.getInsurance()));            //entry.setResource(resourceList);
+            bundle.setHospiceFlag(processPatient.getHospiceFlag(epEncounter.getPremium()));
             bundle.getEntry().add(resourceList);
 
             bundleRepository.save(bundle);
@@ -86,11 +86,7 @@ public class DataService {
             LOGGER.error("Exception Occured for PatientId" +patientId);
         }
     }
-//    void startLoadPatientListner(){
-//        ExecutorService executorService=Executors.newSingleThreadExecutor();
-//        executorService.submit(new LoadPatientListner(epEncounterRepository,isAllPatientsLoaded,allEpEncounterPatients));
-//
-//    }
+
 
 
   //-------------------------Store Thousand Patients:-
@@ -263,5 +259,6 @@ public class DataService {
 
         executorService.shutdown();
         LOGGER.info("****** Shutting down the thread pool ******");
+        System.exit(0);
     }
 }

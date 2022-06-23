@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
 
-@Document(collection = "ep_temp_dictionary_value_set")
+@Document(collection = "ep_temp_dictionary_DMS_value_set")
 @NoArgsConstructor
 @Data
 public class ValueSetDictionary {

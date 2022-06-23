@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 import java.util.List;
 
-@Document(collection="ep_encounter_ccs_testdeck")
+@Document(collection="ep_encounter_dms_sampledeck")
 @Data @NoArgsConstructor
 public class EpEncounter {
 
@@ -45,4 +45,5 @@ public class EpEncounter {
     List<MedicationList> medicationList;
     VitalSigns vitalSigns;
     List<String> payerName;
+    List<Premium> premium;
 }

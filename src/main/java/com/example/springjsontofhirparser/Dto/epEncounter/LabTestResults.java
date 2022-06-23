@@ -21,4 +21,6 @@ public class LabTestResults {
     private String claimId;
     private String claimStatus;
     private String visitId;
+    private String numericResult;
+    private String numericResultUnit;
 }

@@ -1,6 +1,7 @@
 package com.example.springjsontofhirparser.FhirResources;
 
 
+import com.example.springjsontofhirparser.Dto.PayerInfo;
 import com.example.springjsontofhirparser.Util.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.LinkedList;
 import java.util.List;
 
-@Document(collection = "ep_encounter_fhir_CCS_Test_Deck")
+@Document(collection = "ep_encounter_fhir_DMS_Sample_Deck")
 @Data
 @NoArgsConstructor
 public class Bundle {
@@ -21,6 +22,7 @@ public class Bundle {
     private String id;
     private String gender;
     private String birthDate;
-    private List<String> payerCodes;
+    private List<PayerInfo> payerInfo;
+    private String hospiceFlag;
     private List<List<Resource>> entry=new LinkedList<>();
 }
