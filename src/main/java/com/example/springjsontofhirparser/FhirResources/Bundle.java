@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.LinkedList;
 import java.util.List;
 
-@Document(collection = "ep_encounter_fhir_DMS_Sample_Deck")
+@Document(collection = Constants.EP_ENCOUNTER_FHIR_COLLECTION)
 @Data
 @NoArgsConstructor
 public class Bundle {

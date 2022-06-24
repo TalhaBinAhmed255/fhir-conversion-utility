@@ -1,12 +1,13 @@
 package com.example.springjsontofhirparser.Dto;
 
+import com.example.springjsontofhirparser.Util.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
 
-@Document(collection = "ep_temp_dictionary_DMS_value_set")
+@Document(collection = Constants.EP_CQL_DICTIONARY)
 @NoArgsConstructor
 @Data
 public class ValueSetDictionary {

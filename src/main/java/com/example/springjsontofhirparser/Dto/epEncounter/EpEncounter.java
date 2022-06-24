@@ -1,5 +1,6 @@
 package com.example.springjsontofhirparser.Dto.epEncounter;
 
+import com.example.springjsontofhirparser.Util.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -7,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 import java.util.List;
 
-@Document(collection="ep_encounter_dms_sampledeck")
+@Document(collection= Constants.EP_ENCOUNTER)
 @Data @NoArgsConstructor
 public class EpEncounter {
 
