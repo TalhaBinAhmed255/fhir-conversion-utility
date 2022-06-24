@@ -526,7 +526,11 @@ public class ProcessPatient implements Runnable{
 
                     if (epEncounter.getProblem() != null) {
                         for (Problem problem : epEncounter.getProblem()) {
-                            if (problem.getPosCode()==null || !problem.getPosCode().equals("81")) {
+
+                            //problem pos code should not be =81 and problem visitId and encounter visitId should match and should be on same dates
+                            if (((problem.getPosCode()==null) || !(problem.getPosCode().equals("81"))) &&
+                                    (null!=problem.getVisitId() && null!=encounterStatus.getVisitId() && problem.getVisitId().equals(encounterStatus.getVisitId())
+                                     && null!=problem.getProblemDate() && null!=encounterStatus.getStartDateString() && problem.getProblemDateString().equals(encounterStatus.getStartDateString()))) {
 
                                 Diagnosis diagnosis = new Diagnosis();
                                 diagnosis.getCondition().setReference("Condition/"+problem.getProblemCode());
