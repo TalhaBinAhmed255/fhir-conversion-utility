@@ -27,6 +27,10 @@ public class Constants {
 
     public static final String ACTCODE_SYSTEM = "http://terminology.hl7.org/CodeSystem/v3-ActCode";
 
+    public static final String EP_ENCOUNTER="ep_encounter_bcs_sampledeck";
+    public static final String EP_CQL_DICTIONARY="ep_cql_dictionary_bcs_value_set";
+    public static final String EP_ENCOUNTER_FHIR_COLLECTION="ep_encounter_fhir_bcs_sample_deck";
+
 
 
     public static String getIsoDateInRequiredFormat(Date date){
