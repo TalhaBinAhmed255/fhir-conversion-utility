@@ -9,8 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class ValueQuantity {
 
-    String value="";
-    String unit="";
-    String system="";
-    String code="";
+    String value = "";
+    String unit = "";
+    String system = "";
+    String code = "";
 }

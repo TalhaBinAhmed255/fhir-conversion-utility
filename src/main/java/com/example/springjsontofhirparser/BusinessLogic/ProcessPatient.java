@@ -475,9 +475,13 @@ public class ProcessPatient implements Runnable{
 
                 observation.setIssued(labTestResults.getReportedDateTime()!=null?Constants.getIsoDateInRequiredFormat(labTestResults.getReportedDateTime()):"");
 
-                observation.getValueQuantity().setValue(labTestResults.getNumericResult());
-                observation.getValueQuantity().setUnit(labTestResults.getNumericResultUnit());
-                observation.getValueQuantity().setSystem("http://unitsofmeasure.org");
+                if(labTestResults.getNumericResult() !=null){
+                    observation.setValueQuantity(new ValueQuantity());
+                    observation.getValueQuantity().setValue( labTestResults.getNumericResult());
+                    observation.getValueQuantity().setUnit(labTestResults.getNumericResultUnit());
+                    observation.getValueQuantity().setSystem("http://unitsofmeasure.org");
+                }
+
 
 
                 List<Performer>performerList=new LinkedList<>();
