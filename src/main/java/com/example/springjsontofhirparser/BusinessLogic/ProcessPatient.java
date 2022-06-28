@@ -357,7 +357,7 @@ public class ProcessPatient implements Runnable{
 
                     Problem problem= epEncounter.getProblem().get(i);
                     Condition condition=new Condition();
-                    condition.setId("Condition/"+problem.getProblemCode());
+                    condition.setId("Condition/"+problem.getProblemCode()+"/"+problem.getProblemDateString());
 
                     ClinicalStatusCoding clinicalStatusCoding=new ClinicalStatusCoding();
                     clinicalStatusCoding.setSystem("http://terminology.hl7.org/CodeSystem/condition-clinical");
@@ -390,7 +390,10 @@ public class ProcessPatient implements Runnable{
 
                     condition.setOnsetDateTime(problem.getProblemDateTime()!=null? Constants.getIsoDateInRequiredFormat(problem.getProblemDateTime()):"");
                     condition.setRecordedDate(problem.getProblemDate()!=null?Constants.getIsoDateInRequiredFormat(problem.getProblemDate()):"");
-                    condition.setAbatementDateTime(problem.getEndDate()!=null?Constants.getIsoDateInRequiredFormat(problem.getEndDate()):"");
+
+                    if(problem.getEndDate()!=null){
+                        condition.setAbatementDateTime(Constants.getIsoDateInRequiredFormat(problem.getEndDate()));
+                    }
 
                     ResourceChild resourceChild=new ResourceChild();
                     resourceChild.setResource(condition);
@@ -502,8 +505,26 @@ public class ProcessPatient implements Runnable{
         }
     }
 
+    boolean isEncounterConditionResourceDatesOverlap(EncounterStatus encounterStatus,Problem problem){
+        Date encounterStartDate = encounterStatus.getStartDate() ,encounterEndDate=encounterStatus.getEndDate(),
+                problemStartDate = problem.getProblemDate(),problemEndDate = problem.getEndDate();
+
+        if(problemEndDate==null){
+            if(encounterEndDate.compareTo(problemStartDate)>=0){
+                return true;
+            }
+        }
+        else{
+            if(problemEndDate.compareTo(encounterStartDate)>=0 && problemEndDate.compareTo(encounterEndDate)<=0){
+                return true;
+            }
+        }
+        return false;
+    }
+
     void mapEncounter(Bundle bundle,EpEncounter epEncounter,List<Resource> resourceList){
         if(epEncounter !=null && epEncounter.getEncounterStatus()!=null) {
+            List<String> mappedProblemObects=new LinkedList<>();
             for(int i=0;i<epEncounter.getEncounterStatus().size();i++) {
 
                 if(epEncounter.getEncounterStatus().get(i).getPosCode()==null || !epEncounter.getEncounterStatus().get(i).getPosCode().equals("81")){
@@ -531,13 +552,23 @@ public class ProcessPatient implements Runnable{
                     if (epEncounter.getProblem() != null) {
                         for (Problem problem : epEncounter.getProblem()) {
 
+                            String problemId= "Condition/" +problem.getProblemCode() + "/"+problem.getProblemDateString() ;
+
                             //problem pos code should not be =81 and problem visitId and encounter visitId should match and should be on same dates
-                            if (((problem.getPosCode()==null) || !(problem.getPosCode().equals("81"))) &&
-                                    (null!=problem.getVisitId() && null!=encounterStatus.getVisitId() && problem.getVisitId().equals(encounterStatus.getVisitId())
-                                     && null!=problem.getProblemDate() && null!=encounterStatus.getStartDateString() && problem.getProblemDateString().equals(encounterStatus.getStartDateString()))) {
+//                            if (((problem.getPosCode()==null) || !(problem.getPosCode().equals("81"))) &&
+//                                    (null!=problem.getVisitId() && null!=encounterStatus.getVisitId() && problem.getVisitId().equals(encounterStatus.getVisitId())
+//                                     && null!=problem.getProblemDate() && null!=encounterStatus.getStartDateString() && problem.getProblemDateString().equals(encounterStatus.getStartDateString()))) {
+//                            if (((problem.getPosCode()==null) || !(problem.getPosCode().equals("81")))
+//                                    && null!=problem.getProblemDate() && null!=encounterStatus.getStartDateString() && problem.getProblemDateString().equals(encounterStatus.getStartDateString())) {
+//                            if (((problem.getPosCode()==null) || !(problem.getPosCode().equals("81")))
+//                                    && isEncounterConditionResourceDatesOverlap(encounterStatus,problem)
+//                             && !mappedProblemObects.contains(problemId)) {
+                            if (((problem.getPosCode()==null) || !(problem.getPosCode().equals("81")))
+                                    && isEncounterConditionResourceDatesOverlap(encounterStatus,problem)
+                                    ) {
 
                                 Diagnosis diagnosis = new Diagnosis();
-                                diagnosis.getCondition().setReference("Condition/"+problem.getProblemCode());
+                                diagnosis.getCondition().setReference(problemId);
                                 Coding diagnosisCoding = new Coding();
 //                        dictionary = getDictionaryByCode(problem.getProblemCode());
 //                        if (dictionary != null) {
@@ -556,7 +587,11 @@ public class ProcessPatient implements Runnable{
 //                        diagnosis.getCondition().setReference("Condition/" + dictionary.getName());
                                 diagnosis.setRank(problem.getProblemPriority() != null ? Integer.parseInt(problem.getProblemPriority()) : 0);
                                 encounter.getDiagnosis().add(diagnosis);
+
+                                mappedProblemObects.add(problemId);
                             }
+
+
                         }
                     }
 
