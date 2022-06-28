@@ -21,5 +21,6 @@ public class SpringJsonToFhirParserApplication {
         //dataService.storeThousandPatientsAsBundles();
 
         dataService.storeAllBundles();//SDFSDFS
+        //gjfgjfgjfgh
     }
 }
