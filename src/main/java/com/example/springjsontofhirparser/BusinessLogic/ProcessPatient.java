@@ -698,14 +698,21 @@ public class ProcessPatient implements Runnable{
                                 medicationDispense.getDaysSupply().setCode("d");
                                 medicationDispense.getDaysSupply().setSystem("http://unitsofmeasure.org");
                             }
-                            medicationDispense.setWhenHandedOver(medicationList.getStartDate()!=null ? Constants.getIsoDateInRequiredFormat(medicationList.getStartDate()):"");
+                            medicationDispense.setWhenHandedOver(medicationList.getStartDate()!=null ? Constants.getIsoDateInRequiredFormat(medicationList.getStartDate()):Constants.getIsoDateInRequiredFormat(medicationOrdered.getOrderDate()));
                         }
                     }
                 }
+//                medicationDispense.setWhenHandedOver(medicationOrdered.getOrderDate()!=null ? Constants.getIsoDateInRequiredFormat(medicationOrdered.getOrderDate()):"");
+
 
                 Reference recieverReference=new Reference();
                 recieverReference.setReference("Patient/"+epEncounter.getPatientId());
                 medicationDispense.getReceiver().add(recieverReference);
+
+
+                Coding medicationCodeableConcept=new Coding();
+                mapCodingObjectByDictionaries(medicationCodeableConcept, medicationOrdered.getMedicationCode());
+                medicationDispense.getMedicationCodeableConcept().getCoding().add(medicationCodeableConcept);
 
 
                 //dosageInstruction
@@ -716,9 +723,6 @@ public class ProcessPatient implements Runnable{
 ///////////////////////////////
                 Type route=new Type();
                 Coding coding=new Coding();
-//                coding.setCode(medicationOrdered.getMedicationCode());
-//                coding.setDisplay(medicationOrdered.getMedicationDescription());
-//                coding.setSystem(medicationOrdered.getMedicationCodesystem());
 
                 mapCodingObjectByDictionaries(coding, medicationOrdered.getMedicationCode());
                 route.getCoding().add(coding);

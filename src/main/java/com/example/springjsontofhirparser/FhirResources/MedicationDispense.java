@@ -1,9 +1,6 @@
 package com.example.springjsontofhirparser.FhirResources;
 
-import com.example.springjsontofhirparser.Dto.DosageInstruction;
-import com.example.springjsontofhirparser.Dto.DoseQuantity;
-import com.example.springjsontofhirparser.Dto.Performer;
-import com.example.springjsontofhirparser.Dto.Reference;
+import com.example.springjsontofhirparser.Dto.*;
 import com.example.springjsontofhirparser.Util.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,6 +26,7 @@ public class MedicationDispense  extends ResourceChild {
     private String whenHandedOver="";//dispensedDate.
     private List<Reference> receiver=new LinkedList<>();//patientId
     private List<DosageInstruction>dosageInstruction=new LinkedList<>();
+    private Type medicationCodeableConcept=new Type();
 
 
 
