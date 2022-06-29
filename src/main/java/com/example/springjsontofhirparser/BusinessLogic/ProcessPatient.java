@@ -713,14 +713,16 @@ public class ProcessPatient implements Runnable{
                 timing.getRepeat().setFrequency((int) frequency);
                 timing.getRepeat().setPeriod(daySupply);
                 timing.getRepeat().setPeriodUnit(periodUnit);
-
+///////////////////////////////
                 Type route=new Type();
                 Coding coding=new Coding();
-                coding.setCode(medicationOrdered.getMedicationCode());
-                coding.setDisplay(medicationOrdered.getMedicationDescription());
-                coding.setSystem(medicationOrdered.getMedicationCodesystem());
-                route.getCoding().add(coding);
+//                coding.setCode(medicationOrdered.getMedicationCode());
+//                coding.setDisplay(medicationOrdered.getMedicationDescription());
+//                coding.setSystem(medicationOrdered.getMedicationCodesystem());
 
+                mapCodingObjectByDictionaries(coding, medicationOrdered.getMedicationCode());
+                route.getCoding().add(coding);
+///////////////////////////////
                 //DoseRate
                 Coding doseAndRateCoding=new Coding();
                 doseAndRateCoding.setSystem("http://terminology.hl7.org/CodeSystem/dose-rate-type");
