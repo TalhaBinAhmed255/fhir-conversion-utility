@@ -686,9 +686,15 @@ public class ProcessPatient implements Runnable{
                 if(epEncounter.getMedicationList()!=null) {
                     for (MedicationList medicationList : epEncounter.getMedicationList()) {
                         if (medicationOrdered.getMedicationCode().equals(medicationList.getMedicationCode())) {
-                            frequency=Double.parseDouble(medicationList.getFrequency());
-                            dose=Double.parseDouble(medicationList.getDose());
-                            orderQuantity=Double.parseDouble(medicationOrdered.getOrderQuantity());
+                            if(medicationList.getFrequency() !=null){
+                                frequency=Double.parseDouble(medicationList.getFrequency());
+                            }
+                            if(medicationList.getDose() !=null){
+                                dose=Double.parseDouble(medicationList.getDose());
+                            }
+                            if(medicationOrdered.getOrderQuantity() !=null){
+                                orderQuantity=Double.parseDouble(medicationOrdered.getOrderQuantity());
+                            }
                             periodUnit=medicationList.getFrequencyUnit();
                             doseUnit=medicationList.getDoseUnit();
                             if(frequency>0 && dose>0 && orderQuantity>0){
