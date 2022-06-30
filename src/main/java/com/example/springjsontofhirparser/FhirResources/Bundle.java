@@ -2,6 +2,7 @@ package com.example.springjsontofhirparser.FhirResources;
 
 
 import com.example.springjsontofhirparser.Dto.PayerInfo;
+import com.example.springjsontofhirparser.Dto.epEncounter.Premium;
 import com.example.springjsontofhirparser.Util.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,5 +25,6 @@ public class Bundle {
     private String birthDate;
     private List<PayerInfo> payerInfo;
     private String hospiceFlag;
+    private List<Premium> premium;
     private List<List<Resource>> entry=new LinkedList<>();
 }

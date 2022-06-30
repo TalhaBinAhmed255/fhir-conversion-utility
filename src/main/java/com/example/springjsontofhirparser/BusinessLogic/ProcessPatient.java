@@ -651,6 +651,7 @@ public class ProcessPatient implements Runnable{
         }
     }
 
+
     void mapMedicationOrdered(Bundle bundle,EpEncounter epEncounter,List<Resource> resourceList){
         if(epEncounter !=null && epEncounter.getMedicationOrdered()!=null) {
             for(int i=0;i<epEncounter.getMedicationOrdered().size();i++){
@@ -784,6 +785,7 @@ public class ProcessPatient implements Runnable{
             bundle.setBirthDate(getFormattedDate(epEncounter.getBirthDateString()));
             bundle.setPayerInfo(mapPayersInfoInList(epEncounter.getInsurance()));
             bundle.setHospiceFlag(getHospiceFlag(epEncounter.getPremium()));
+            bundle.setPremium(epEncounter.getPremium());
 
             // entry.setResource(resourceList);
             bundle.getEntry().add(resourceList);

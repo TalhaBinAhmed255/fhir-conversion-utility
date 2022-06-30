@@ -27,7 +27,4 @@ public class MedicationDispense  extends ResourceChild {
     private List<Reference> receiver=new LinkedList<>();//patientId
     private List<DosageInstruction>dosageInstruction=new LinkedList<>();
     private Type medicationCodeableConcept=new Type();
-
-
-
 }

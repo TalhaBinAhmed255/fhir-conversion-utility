@@ -76,12 +76,14 @@ public class DataService {
             bundle.setBirthDate(processPatient.getFormattedDate(epEncounter.getBirthDateString()));
             bundle.setPayerInfo(processPatient.mapPayersInfoInList(epEncounter.getInsurance()));            //entry.setResource(resourceList);
             bundle.setHospiceFlag(processPatient.getHospiceFlag(epEncounter.getPremium()));
+            bundle.setPremium(epEncounter.getPremium());
             bundle.getEntry().add(resourceList);
 
             bundleRepository.save(bundle);
 
 
             LOGGER.info("Bundle Saved!!!!");
+            System.exit(0);
         }catch(Exception e){
             LOGGER.error("Exception Occured for PatientId" +patientId);
         }
@@ -89,7 +91,7 @@ public class DataService {
 
 
 
-  //-------------------------Store Thousand Patients:-
+    //-------------------------Store Thousand Patients:-
     List<EpEncounter> getThousandEpEncounterPatients(){
         long totalNumberOfElements=getTotalNumberOfElementsInEpEncounter();
         totalNumberOfElements=1000;//this is changed;
@@ -102,46 +104,46 @@ public class DataService {
         return epEncounterRepository.getEpEncounterByEpids( "certificationhedis2020",paging).getContent();
     }
 
-     public void storeThousandPatientsAsBundles(){
-         LOGGER.info("Going to process/store 1000 patients !!");
+    public void storeThousandPatientsAsBundles(){
+        LOGGER.info("Going to process/store 1000 patients !!");
 
-         List<EpEncounter> epEncounterList=getThousandEpEncounterPatients();
+        List<EpEncounter> epEncounterList=getThousandEpEncounterPatients();
 
-         LOGGER.info("All patients are Obtained from Ep_Encounter!!");
-         int batchSize=100;
-         int epEncounterEnteries=epEncounterList.size();
-         int poolSize=10;
-         int epEncounterEnteriesProcessed=0;
-         int epEncounterEnteriesLeft;
-         ExecutorService executorService = Executors.newFixedThreadPool(poolSize);
+        LOGGER.info("All patients are Obtained from Ep_Encounter!!");
+        int batchSize=100;
+        int epEncounterEnteries=epEncounterList.size();
+        int poolSize=10;
+        int epEncounterEnteriesProcessed=0;
+        int epEncounterEnteriesLeft;
+        ExecutorService executorService = Executors.newFixedThreadPool(poolSize);
 
-         for(int i=0;i<epEncounterEnteries;i++){
-             epEncounterEnteriesLeft=epEncounterEnteries-epEncounterEnteriesProcessed;
-             if(epEncounterEnteriesLeft>=batchSize){
-                 executorService.submit(new StoreBundleListTask(epEncounterList.subList(i, i + batchSize),bundleRepository,dictionaryRepository,valueSetRepository,new ThreadTaskCompleted()));
-                 i+=batchSize-1;
-                 epEncounterEnteriesProcessed+=batchSize;
-             }
-             else{
-                 executorService.submit(new StoreBundleListTask(epEncounterList.subList(i,i+epEncounterEnteriesLeft),bundleRepository,dictionaryRepository,valueSetRepository,new ThreadTaskCompleted()));
-                 i+=epEncounterEnteriesLeft;
-                 epEncounterEnteriesProcessed+=epEncounterEnteriesLeft;
-             }
-         }
+        for(int i=0;i<epEncounterEnteries;i++){
+            epEncounterEnteriesLeft=epEncounterEnteries-epEncounterEnteriesProcessed;
+            if(epEncounterEnteriesLeft>=batchSize){
+                executorService.submit(new StoreBundleListTask(epEncounterList.subList(i, i + batchSize),bundleRepository,dictionaryRepository,valueSetRepository,new ThreadTaskCompleted()));
+                i+=batchSize-1;
+                epEncounterEnteriesProcessed+=batchSize;
+            }
+            else{
+                executorService.submit(new StoreBundleListTask(epEncounterList.subList(i,i+epEncounterEnteriesLeft),bundleRepository,dictionaryRepository,valueSetRepository,new ThreadTaskCompleted()));
+                i+=epEncounterEnteriesLeft;
+                epEncounterEnteriesProcessed+=epEncounterEnteriesLeft;
+            }
+        }
 
-         while(true){
-             if(executorService.isTerminated()){
-                 executorService.shutdown();
-                 LOGGER.info("Thread pool Succesfully shutdown!!");
-                 break;
-             }
-             try {
-                 Thread.sleep(10000);
-             } catch (InterruptedException e) {
-                 e.printStackTrace();
-             }
-         }
-     }
+        while(true){
+            if(executorService.isTerminated()){
+                executorService.shutdown();
+                LOGGER.info("Thread pool Succesfully shutdown!!");
+                break;
+            }
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     //------------------------------Store all Patients-------------------------------------------------
     long getTotalNumberOfElementsInEpEncounter(){
