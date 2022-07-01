@@ -36,6 +36,8 @@ public class EpEncounter {
     Date birthDateTime;
     IhmContext ihmContext;
     Date loadDateTime;
+    String ethnicityDS;
+    String raceDS;
     List<LabTestResults> labTestResult;
     List<Insurance> insurance;
     List<Problem> problem;

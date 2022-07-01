@@ -765,7 +765,55 @@ public class ProcessPatient implements Runnable{
     }
 
 
+    void mapImmunization(Bundle bundle,EpEncounter epEncounter,List<Resource> resourceList){
+        if(epEncounter !=null && epEncounter.getMedicationOrdered()!=null) {
+            for(int i=0;i<epEncounter.getMedicationOrdered().size();i++){
+                MedicationOrdered medicationOrdered= epEncounter.getMedicationOrdered().get(i);
+                Immunization immunization=new Immunization();
 
+                immunization.setId(epEncounter.getPatientId());
+
+//                if(medicationOrdered.getMedicationStatusIsActive()!=null) {
+//                    immunization.setStatus(medicationOrdered.getMedicationStatusIsActive() == true ? "entered-in-error" : "completed");
+//                }
+                immunization.setStatus("completed");
+
+                Coding vacinationCoding=new Coding();
+                mapCodingObjectByDictionaries(vacinationCoding, medicationOrdered.getMedicationCode());
+                immunization.getVaccineCode().getCoding().add(vacinationCoding);
+
+
+                immunization.getPatient().setReference("Patient/" + epEncounter.getPatientId());
+
+                immunization.getEncounter().setReference("Encounter/" + getEncounterCode(epEncounter));
+
+                immunization.setOccurrenceDateTime(getFormattedDate(medicationOrdered.getOrderDateString()));
+
+
+                immunization.getDoseQuantity().setValue(medicationOrdered.getQuantity()==0?0:medicationOrdered.getQuantity());
+                immunization.getDoseQuantity().setSystem("http://unitsofmeasure.org");
+
+                ResourceChild resourceChild=new ResourceChild();
+                resourceChild.setResource(immunization);
+                resourceList.add(resourceChild);
+            }
+        }
+    }
+
+    void mapBundleItems(Bundle bundle,EpEncounter epEncounter){
+        bundle.setGender(epEncounter.getGender().equals("F") ? "female" : "male");
+        bundle.setBirthDate(getFormattedDate(epEncounter.getBirthDateString()));
+        bundle.setPayerInfo(mapPayersInfoInList(epEncounter.getInsurance()));
+        bundle.setHospiceFlag(getHospiceFlag(epEncounter.getPremium()));
+        bundle.setPremium(epEncounter.getPremium());
+
+        bundle.setEthnicity(epEncounter.getEthnicity());
+        bundle.setEthnicityCode(epEncounter.getEthnicityCode());
+        bundle.setEthnicityDS(epEncounter.getEthnicityDS());
+        bundle.setRace(epEncounter.getRace());
+        bundle.setRaceCode(epEncounter.getRaceCode());
+        bundle.setRaceDS(epEncounter.getRaceDS());
+    }
 
     @Override
     public void run() {
@@ -786,12 +834,9 @@ public class ProcessPatient implements Runnable{
             mapEncounter(bundle, epEncounter, resourceList);
             mapMedicationAdministrations(bundle, epEncounter, resourceList);
             mapMedicationOrdered(bundle, epEncounter, resourceList);
+            mapImmunization(bundle, epEncounter, resourceList);
 
-            bundle.setGender(epEncounter.getGender().equals("F") ? "female" : "male");
-            bundle.setBirthDate(getFormattedDate(epEncounter.getBirthDateString()));
-            bundle.setPayerInfo(mapPayersInfoInList(epEncounter.getInsurance()));
-            bundle.setHospiceFlag(getHospiceFlag(epEncounter.getPremium()));
-            bundle.setPremium(epEncounter.getPremium());
+            mapBundleItems(bundle,epEncounter);
 
             // entry.setResource(resourceList);
             bundle.getEntry().add(resourceList);

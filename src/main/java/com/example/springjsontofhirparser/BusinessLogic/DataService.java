@@ -71,12 +71,10 @@ public class DataService {
             processPatient.mapEncounter(bundle,epEncounter,resourceList);
             processPatient.mapMedicationAdministrations(bundle,epEncounter,resourceList);
             processPatient.mapMedicationOrdered(bundle,epEncounter,resourceList);
+            processPatient.mapImmunization(bundle, epEncounter, resourceList);
 
-            bundle.setGender(epEncounter.getGender().equals("F")? "female":"male");
-            bundle.setBirthDate(processPatient.getFormattedDate(epEncounter.getBirthDateString()));
-            bundle.setPayerInfo(processPatient.mapPayersInfoInList(epEncounter.getInsurance()));            //entry.setResource(resourceList);
-            bundle.setHospiceFlag(processPatient.getHospiceFlag(epEncounter.getPremium()));
-            bundle.setPremium(epEncounter.getPremium());
+            processPatient.mapBundleItems(bundle,epEncounter);
+
             bundle.getEntry().add(resourceList);
 
             bundleRepository.save(bundle);

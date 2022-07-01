@@ -28,6 +28,7 @@ public class MedicationOrdered {
     Boolean negated;
     Boolean wasQueriedDrugFormulary;
     Boolean wasTransmittedElectronically;
+    int quantity=0;
 
 
 }

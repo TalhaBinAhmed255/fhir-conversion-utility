@@ -12,6 +12,7 @@ public class Constants {
     public static final String RESOURCE_TYPE_CLAIM="Claim";
     public static final String RESOURCE_TYPE_CONDITION="Condition";
     public static final String RESOURCE_TYPE_PROCEDURE="Procedure";
+    public static final String RESOURCE_TYPE_IMMUNIZATION="Immunization";
     public static final String RESOURCE_TYPE_DIAGNOSIS="Diagnosis";
     public static final String RESOURCE_TYPE_BUNDLE_MEDICATION_DISPENSE ="MedicationDispense";
     public static final String RESOURCE_TYPE_BUNDLE_MEDICATION_ADMINISTRATION ="MedicationAdministration";
@@ -27,9 +28,9 @@ public class Constants {
 
     public static final String ACTCODE_SYSTEM = "http://terminology.hl7.org/CodeSystem/v3-ActCode";
 
-    public static final String EP_ENCOUNTER="ep_encounter_dms_test_deck";
-    public static final String EP_CQL_DICTIONARY="ep_temp_dictionary_DMS_value_set";
-    public static final String EP_ENCOUNTER_FHIR_COLLECTION="ep_encounter_fhir_DMS_Test_Deck";
+    public static final String EP_ENCOUNTER="ep_encounter_ais_sample_deck";
+    public static final String EP_CQL_DICTIONARY="ep_cql_dictionary_ais_value_set";
+    public static final String EP_ENCOUNTER_FHIR_COLLECTION="ep_encounter_fhir_AIS_Sample_Deck";
 
 
 

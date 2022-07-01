@@ -25,6 +25,12 @@ public class Bundle {
     private String birthDate;
     private List<PayerInfo> payerInfo;
     private String hospiceFlag;
+    private String ethnicity;
+    private String ethnicityCode;
+    private String ethnicityDS;
+    private String race;
+    private String raceCode;
+    private String raceDS;
     private List<Premium> premium;
     private List<List<Resource>> entry=new LinkedList<>();
 }
