@@ -478,6 +478,8 @@ public class ProcessPatient implements Runnable{
 
                 observation.setIssued(labTestResults.getReportedDateTime()!=null?Constants.getIsoDateInRequiredFormat(labTestResults.getReportedDateTime()):"");
 
+                observation.setValueInteger(Integer.parseInt(labTestResults.getNumericResult()));
+
                 if(labTestResults.getNumericResult() !=null){
                     observation.setValueQuantity(new ValueQuantity());
                     observation.getValueQuantity().setValue( labTestResults.getNumericResult());
