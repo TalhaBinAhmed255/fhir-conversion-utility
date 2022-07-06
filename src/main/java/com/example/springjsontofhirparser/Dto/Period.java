@@ -9,5 +9,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class Period {
     private String start="";
-    private String end="";
+    private String end;
 }

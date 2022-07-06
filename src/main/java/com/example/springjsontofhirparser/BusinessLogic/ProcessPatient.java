@@ -335,8 +335,9 @@ public class ProcessPatient implements Runnable{
                         procedure.getEncounter().setReference("Encounter/" + getEncounterCode(epEncounter));
 
                         procedure.getPerformedPeriod().setStart(getFormattedDate(procedurePerformed.getPerformedDateString()) + "T00:00:00.0" );
-                        procedure.getPerformedPeriod().setEnd(getFormattedDate(procedurePerformed.getEndDateString()) + "T00:00:00.0" );
-
+                        if(procedurePerformed.getEndDateString()!=null) {
+                            procedure.getPerformedPeriod().setEnd(getFormattedDate(procedurePerformed.getEndDateString()) + "T00:00:00.0");
+                        }
 
                         procedure.setReport(getLabResultsCodes(epEncounter));
 
@@ -765,7 +766,7 @@ public class ProcessPatient implements Runnable{
     }
 
 
-    void mapImmunization(Bundle bundle,EpEncounter epEncounter,List<Resource> resourceList){
+    void mapImmunizationFromMedicationOrdered(Bundle bundle,EpEncounter epEncounter,List<Resource> resourceList){
         if(epEncounter !=null && epEncounter.getMedicationOrdered()!=null) {
             for(int i=0;i<epEncounter.getMedicationOrdered().size();i++){
                 MedicationOrdered medicationOrdered= epEncounter.getMedicationOrdered().get(i);
@@ -796,6 +797,47 @@ public class ProcessPatient implements Runnable{
                 ResourceChild resourceChild=new ResourceChild();
                 resourceChild.setResource(immunization);
                 resourceList.add(resourceChild);
+            }
+        }
+    }
+
+    void mapImmunizationFromProcedurePerformed(Bundle bundle,EpEncounter epEncounter,List<Resource> resourceList) {
+        if (epEncounter != null) {
+            if (epEncounter.getProcedurePerformed() != null) {
+                for (int i = 0; i < epEncounter.getProcedurePerformed().size(); i++) {
+
+                    if (epEncounter.getProcedurePerformed().get(i).getPosCode() == null || !epEncounter.getProcedurePerformed().get(i).getPosCode().equals("81")) {
+
+                        ProcedurePerformed procedurePerformed = epEncounter.getProcedurePerformed().get(i);
+                        Immunization immunization = new Immunization();
+
+                        immunization.setId(epEncounter.getPatientId());
+
+//                if(medicationOrdered.getMedicationStatusIsActive()!=null) {
+//                    immunization.setStatus(medicationOrdered.getMedicationStatusIsActive() == true ? "entered-in-error" : "completed");
+//                }
+                        immunization.setStatus("completed");
+
+                        Coding vacinationCoding = new Coding();
+                        mapCodingObjectByDictionaries(vacinationCoding, procedurePerformed.getProcedureCode());
+                        immunization.getVaccineCode().getCoding().add(vacinationCoding);
+
+
+                        immunization.getPatient().setReference("Patient/" + epEncounter.getPatientId());
+
+                        immunization.getEncounter().setReference("Encounter/" + getEncounterCode(epEncounter));
+
+                        immunization.setOccurrenceDateTime(getFormattedDate(procedurePerformed.getPerformedDateString()));
+
+
+//                        immunization.getDoseQuantity().setValue(medicationOrdered.getQuantity() == 0 ? 0 : medicationOrdered.getQuantity());
+                        immunization.getDoseQuantity().setSystem("http://unitsofmeasure.org");
+
+                        ResourceChild resourceChild = new ResourceChild();
+                        resourceChild.setResource(immunization);
+                        resourceList.add(resourceChild);
+                    }
+                }
             }
         }
     }
@@ -834,7 +876,7 @@ public class ProcessPatient implements Runnable{
             mapEncounter(bundle, epEncounter, resourceList);
             mapMedicationAdministrations(bundle, epEncounter, resourceList);
             mapMedicationOrdered(bundle, epEncounter, resourceList);
-            mapImmunization(bundle, epEncounter, resourceList);
+            mapImmunizationFromMedicationOrdered(bundle, epEncounter, resourceList);
 
             mapBundleItems(bundle,epEncounter);
 
