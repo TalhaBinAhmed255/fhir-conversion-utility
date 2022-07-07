@@ -479,14 +479,15 @@ public class ProcessPatient implements Runnable{
 
                 observation.setIssued(labTestResults.getReportedDateTime()!=null?Constants.getIsoDateInRequiredFormat(labTestResults.getReportedDateTime()):"");
 
-                if(null!=labTestResults.getNumericResult()) {
-                    observation.setValueInteger(Integer.parseInt(labTestResults.getNumericResult()));
-                }
                 if(labTestResults.getNumericResult() !=null){
+                    observation.setValueInteger(Integer.parseInt(labTestResults.getNumericResult()));
                     observation.setValueQuantity(new ValueQuantity());
                     observation.getValueQuantity().setValue( labTestResults.getNumericResult());
                     observation.getValueQuantity().setUnit(labTestResults.getNumericResultUnit());
                     observation.getValueQuantity().setSystem("http://unitsofmeasure.org");
+                }
+                else {
+                    observation.setValueInteger(null);
                 }
 
 
@@ -665,7 +666,7 @@ public class ProcessPatient implements Runnable{
                 medicationDispense.setId(epEncounter.getPatientId());
 
                 if(medicationOrdered.getMedicationStatusIsActive()!=null) {
-                    medicationDispense.setStatus(medicationOrdered.getMedicationStatusIsActive() == true ? "in-progress" : "completed");
+                    medicationDispense.setStatus(medicationOrdered.getMedicationStatusIsActive() == true ? "completed": "in-progress");
                 }
                 medicationDispense.getMedicationReference().setReference("Medication/"+medicationOrdered.getMedicationCode());
 
