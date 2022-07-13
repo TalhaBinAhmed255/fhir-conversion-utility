@@ -683,6 +683,9 @@ public class ProcessPatient implements Runnable{
                     reference.setReference("Encounter/" +epEncounter.getPatientId() + "/" + encounterStatus.getVisitId());
                     claimItem.getEncounter().add(reference);
 
+                    claimItem.getServiced().setStart(getFormattedDate(encounterStatus.getStartDateString()));
+                    claimItem.getServiced().setEnd(getFormattedDate(encounterStatus.getEndDateString()));
+
                     claimResource.getItem().add(claimItem);
 
                     ResourceChild resourceChild = new ResourceChild();

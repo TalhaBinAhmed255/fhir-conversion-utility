@@ -14,4 +14,5 @@ public class ClaimItem {
     private int sequence;
     private String servicedDate="";
     private List<Reference> encounter=new LinkedList<>();
+    private Period serviced=new Period();
 }
