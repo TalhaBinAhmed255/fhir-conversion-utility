@@ -641,7 +641,7 @@ public class ProcessPatient implements Runnable{
 
 
                     Coding claimTypeCoding = new Coding();
-                    claimTypeCoding.setCode(encounterStatus.getPosCode());
+                    claimTypeCoding.setCode(getClaimType(Integer.parseInt(encounterStatus.getPosCode())));
                     claimTypeCoding.setSystem("http://terminology.hl7.org/CodeSystem/claim-type");
                     claimResource.getType().getCoding().add(claimTypeCoding);
 
