@@ -72,7 +72,8 @@ public class DataService {
             processPatient.mapMedicationAdministrations(bundle,epEncounter,resourceList);
             processPatient.mapMedicationOrdered(bundle,epEncounter,resourceList);
             processPatient.mapImmunizationFromMedicationOrdered(bundle, epEncounter, resourceList);
-//            processPatient.mapImmunizationFromProcedurePerformed(bundle, epEncounter, resourceList);
+            processPatient.mapImmunizationFromProcedurePerformed(bundle, epEncounter, resourceList);
+            processPatient.mapClaim(bundle, epEncounter, resourceList);
 
             processPatient.mapBundleItems(bundle,epEncounter);
 

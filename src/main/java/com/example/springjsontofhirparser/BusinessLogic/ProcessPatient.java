@@ -570,7 +570,7 @@ public class ProcessPatient implements Runnable{
 //                             && !mappedProblemObects.contains(problemId)) {
                             if (((problem.getPosCode()==null) || !(problem.getPosCode().equals("81")))
                                     && isEncounterConditionResourceDatesOverlap(encounterStatus,problem)
-                                    ) {
+                            ) {
 
                                 Diagnosis diagnosis = new Diagnosis();
                                 diagnosis.getCondition().setReference(problemId);
@@ -607,6 +607,85 @@ public class ProcessPatient implements Runnable{
 
                     ResourceChild resourceChild = new ResourceChild();
                     resourceChild.setResource(encounter);
+                    resourceList.add(resourceChild);
+
+                }
+            }
+        }
+    }
+
+    private String getClaimType(int code){
+        if(code==11 || code==19 || code==22 || code==31 || code==50  ){
+            return "professional";
+        }
+        else if(code==21 || code==23 || code==71){
+            return "institutional";
+        }
+        return "";
+    }
+    void mapClaim(Bundle bundle,EpEncounter epEncounter,List<Resource> resourceList){
+        if(epEncounter !=null && epEncounter.getEncounterStatus()!=null) {
+            List<String> mappedProblemObects=new LinkedList<>();
+            for(int i=0;i<epEncounter.getEncounterStatus().size();i++) {
+
+                if(epEncounter.getEncounterStatus().get(i).getPosCode()==null || !epEncounter.getEncounterStatus().get(i).getPosCode().equals("81")){
+
+
+                    EncounterStatus encounterStatus = epEncounter.getEncounterStatus().get(i);
+
+                    Claim claimResource=new Claim();
+
+                    claimResource.setId(epEncounter.getPatientId());
+
+                    claimResource.setStatus("active");
+
+
+                    Coding claimTypeCoding = new Coding();
+                    claimTypeCoding.setCode(encounterStatus.getPosCode());
+                    claimTypeCoding.setSystem("http://terminology.hl7.org/CodeSystem/claim-type");
+                    claimResource.getType().getCoding().add(claimTypeCoding);
+
+                    claimResource.getPatient().setReference("Patient/" + epEncounter.getPatientId());
+
+                    claimResource.setCreated(getFormattedDate(encounterStatus.getStartDateString()) + "T00:00:00.0");
+
+
+                    if (epEncounter.getProblem() != null) {
+                        int sequenceCounter=2;
+                        for (Problem problem : epEncounter.getProblem()) {
+
+                            if (((problem.getPosCode()==null) || !(problem.getPosCode().equals("81")))
+                                    && encounterStatus.getVisitId().equals(problem.getVisitId())
+                            ) {
+                                ClaimDiagnosis claimDiagnosis = new ClaimDiagnosis();
+                                if(problem.getProblemPriority().equals("1")){
+                                    claimDiagnosis.setSequence(1);
+                                }
+                                else{
+                                    claimDiagnosis.setSequence(sequenceCounter);
+                                    sequenceCounter++;
+                                }
+
+                                Coding diagnosisCodeableConcept=new Coding();
+                                mapCodingObjectByDictionaries(diagnosisCodeableConcept, problem.getProblemCode());
+                                claimDiagnosis.getDiagnosisCodeableConcept().getCoding().add(diagnosisCodeableConcept);
+
+                                claimResource.getDiagnosis().add(claimDiagnosis);
+                            }
+                        }
+                    }
+
+                    ClaimItem claimItem=new ClaimItem();
+                    claimItem.setSequence(1);
+                    claimItem.setServicedDate(getFormattedDate(encounterStatus.getStartDateString()));
+                    Reference reference=new Reference();
+                    reference.setReference("Encounter/" + encounterStatus.getVisitId() );
+                    claimItem.getEncounter().add(reference);
+
+                    claimResource.getItem().add(claimItem);
+
+                    ResourceChild resourceChild = new ResourceChild();
+                    resourceChild.setResource(claimResource);
                     resourceList.add(resourceChild);
 
                 }
@@ -881,6 +960,8 @@ public class ProcessPatient implements Runnable{
             mapMedicationAdministrations(bundle, epEncounter, resourceList);
             mapMedicationOrdered(bundle, epEncounter, resourceList);
             mapImmunizationFromMedicationOrdered(bundle, epEncounter, resourceList);
+            mapImmunizationFromProcedurePerformed(bundle, epEncounter, resourceList);
+            mapClaim(bundle, epEncounter, resourceList);
 
             mapBundleItems(bundle,epEncounter);
 
