@@ -537,7 +537,7 @@ public class ProcessPatient implements Runnable{
 
                     EncounterStatus encounterStatus = epEncounter.getEncounterStatus().get(i);
                     Encounter encounter = new Encounter();
-                    encounter.setId(epEncounter.getPatientId());
+                    encounter.setId("Encounter/" +epEncounter.getPatientId() + "/" + encounterStatus.getVisitId());
 
                     encounter.setStatus(encounterStatus.getEndDate() == null ? "in-progress" : "finished");
 
@@ -630,7 +630,6 @@ public class ProcessPatient implements Runnable{
 
                 if(epEncounter.getEncounterStatus().get(i).getPosCode()==null || !epEncounter.getEncounterStatus().get(i).getPosCode().equals("81")){
 
-
                     EncounterStatus encounterStatus = epEncounter.getEncounterStatus().get(i);
 
                     Claim claimResource=new Claim();
@@ -679,7 +678,7 @@ public class ProcessPatient implements Runnable{
                     claimItem.setSequence(1);
                     claimItem.setServicedDate(getFormattedDate(encounterStatus.getStartDateString()));
                     Reference reference=new Reference();
-                    reference.setReference("Encounter/" + encounterStatus.getVisitId() );
+                    reference.setReference("Encounter/" +epEncounter.getPatientId() + "/" + encounterStatus.getVisitId());
                     claimItem.getEncounter().add(reference);
 
                     claimResource.getItem().add(claimItem);
