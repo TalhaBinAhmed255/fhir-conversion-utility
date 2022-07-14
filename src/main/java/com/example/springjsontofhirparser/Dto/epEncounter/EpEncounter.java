@@ -49,4 +49,5 @@ public class EpEncounter {
     VitalSigns vitalSigns;
     List<String> payerName;
     List<Premium> premium;
+    List<EpEncounterClaim> claim;
 }
