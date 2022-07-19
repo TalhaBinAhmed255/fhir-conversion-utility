@@ -16,11 +16,10 @@ public class SpringJsonToFhirParserApplication {
         applicationContext=	SpringApplication.run(SpringJsonToFhirParserApplication.class, args);
         DataService dataService=applicationContext.getBean(DataService.class);
 
-//        dataService.storeSinglePatient("95003");//stores a single patient.
+        //dataService.storeSinglePatient("95047");//stores a single patient.
 
-        //dataService.storeThousandPatientsAsBundles();
+       // dataService.storeThousandPatientsAsBundles();
 
-        dataService.storeAllBundles();//SDFSDFS
-        //gjfgjfgjfgh
+       dataService.storeAllBundles();//SDFSDFS
     }
 }

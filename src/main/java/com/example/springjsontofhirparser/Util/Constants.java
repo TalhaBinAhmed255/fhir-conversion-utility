@@ -28,13 +28,12 @@ public class Constants {
 
     public static final String ACTCODE_SYSTEM = "http://terminology.hl7.org/CodeSystem/v3-ActCode";
 
-    public static final String EP_ENCOUNTER="ep_encounter_ais_sample_deck";
-    public static final String EP_CQL_DICTIONARY="ep_cql_dictionary_ais_value_set";
-    public static final String EP_ENCOUNTER_FHIR_COLLECTION="ep_encounter_fhir_AIS_Sample_Deck";
+    public static final String EP_ENCOUNTER="ep_encounter_col_sample_deck";
+    public static final String EP_CQL_DICTIONARY="ep_cql_dictionary_col_value_set";
+    public static final String EP_ENCOUNTER_FHIR_COLLECTION="ep_encounter_fhir_col_sample_Deck";
 
 
-
-    public static String getIsoDateInRequiredFormat(Date date){
+    public static String getIsoDateInRequiredFormat(Date date) {
         if(date!=null) {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
             inputFormat.setTimeZone(TimeZone.getTimeZone("UTC"));

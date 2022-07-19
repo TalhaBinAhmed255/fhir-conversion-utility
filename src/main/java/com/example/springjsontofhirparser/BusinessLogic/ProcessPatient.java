@@ -73,6 +73,10 @@ public class ProcessPatient implements Runnable{
         List<ValueSetDictionary> valueSetDictionaryList=valueSetRepository.getValueSetDictionaryByCode(code);
         return (valueSetDictionaryList.size()!=0 && valueSetDictionaryList.get(0) != null) ? valueSetDictionaryList.get(0) : new ValueSetDictionary();
     }
+    public List<ValueSetDictionary> getValueSetListDictionaryByCode(String code){
+
+        return valueSetRepository.getValueSetDictionaryByCode(code);
+    }
 
     Date getParsedDateInRequiredFormat(String date, String format){
         SimpleDateFormat sdformat = new SimpleDateFormat(format);
@@ -201,6 +205,31 @@ public class ProcessPatient implements Runnable{
         }
     }
 
+    public void mapCodingObjectByDictionariesList(List<Coding> codingList,String code){
+
+        List<ValueSetDictionary> valueSetDictionary = getValueSetListDictionaryByCode(code);
+
+        if( valueSetDictionary!=null && valueSetDictionary.size()>0 && valueSetDictionary.get(0).getSystem()!=null ){
+            for(ValueSetDictionary valueSetDictionary1 : valueSetDictionary){
+                Coding coding=new Coding();
+                coding.setSystem(valueSetDictionary1.getSystem());
+                coding.setCode(code);
+                coding.setDisplay(valueSetDictionary1.getDisplay());
+                coding.setVersion(valueSetDictionary1.getVersion());
+                codingList.add(coding);
+            }
+
+        }
+        else{
+            Dictionary dictionary=getDictionaryByCode(code);
+            Coding coding=new Coding();
+            coding.setSystem("urn:oid:"+dictionary.getOid());
+            coding.setDisplay(dictionary.getName());
+            coding.setCode(code);
+            codingList.add(coding);
+        }
+    }
+
     public void mapSystemCodeByDictionaries(ClaimCoding coding,String code){
         ValueSetDictionary valueSetDictionary=getValueSetDictionaryByCode(code);
         if( valueSetDictionary!=null && valueSetDictionary.getSystem()!=null ){
@@ -211,6 +240,26 @@ public class ProcessPatient implements Runnable{
             Dictionary dictionary=getDictionaryByCode(code);
             coding.setSystem("urn:oid:"+dictionary.getOid());
             coding.setCode(code);
+        }
+    }
+    public void mapSystemCodeByDictionariesList(List<ClaimCoding> codingList,String code){
+        List<ValueSetDictionary> valueSetDictionary = getValueSetListDictionaryByCode(code);
+
+        if( valueSetDictionary!=null && valueSetDictionary.size()>0 && valueSetDictionary.get(0).getSystem()!=null ){
+            for(ValueSetDictionary valueSetDictionary1 : valueSetDictionary){
+                ClaimCoding claimCoding=new ClaimCoding();
+                claimCoding.setSystem(valueSetDictionary1.getSystem());
+                claimCoding.setCode(code);
+                codingList.add(claimCoding);
+            }
+
+        }
+        else{
+            Dictionary dictionary=getDictionaryByCode(code);
+            ClaimCoding claimCoding=new ClaimCoding();
+            claimCoding.setSystem("urn:oid:"+dictionary.getOid());
+            claimCoding.setCode(code);
+            codingList.add(claimCoding);
         }
     }
     public void mapSystemCodeDisplayByDictionaries(ClaimCoding coding,String code){
@@ -574,7 +623,7 @@ public class ProcessPatient implements Runnable{
 
                     Type type = new Type();
                     List<Coding> codingList = new LinkedList<>();
-                    codingList.add(classCoding);
+                    mapCodingObjectByDictionariesList(codingList,encounterStatus.getCode());
                     type.setCoding(codingList);
                     encounter.getType().add(type);
 
@@ -680,35 +729,53 @@ public class ProcessPatient implements Runnable{
                         int sequenceCounter=2;
                         for (Problem problem : epEncounter.getProblem()) {
 
+                            if(problem.getProblemCode().equals("K74.0")){
+
+                                int a=0;
+                            }
+
                             if (((problem.getPosCode()==null) || !(problem.getPosCode().equals("81")))
                                     && epEncounterClaim.getVisitId().equals(problem.getVisitId())
                             ) {
                                 ClaimDiagnosis claimDiagnosis = new ClaimDiagnosis();
-                                if(problem.getProblemPriority().equals("1")){
-                                    claimDiagnosis.setSequence(1);
+                                if(problem.getProblemPriority() != null) {
+                                    if(problem.getProblemPriority().equals("1")){
+                                        claimDiagnosis.setSequence(1);
+                                    }
+                                    else{
+                                        claimDiagnosis.setSequence(sequenceCounter);
+                                        sequenceCounter++;
+                                    }
+
+                                    ClaimCoding diagnosisCodeableConcept=new ClaimCoding();
+                                    mapSystemCodeByDictionaries(diagnosisCodeableConcept, problem.getProblemCode());
+                                    claimDiagnosis.getDiagnosisCodeableConcept().getCoding().add(diagnosisCodeableConcept);
+                                    claimResource.getDiagnosis().add(claimDiagnosis);
                                 }
                                 else{
                                     claimDiagnosis.setSequence(sequenceCounter);
                                     sequenceCounter++;
+
+
+                                    ClaimCoding diagnosisCodeableConcept=new ClaimCoding();
+                                    mapSystemCodeByDictionaries(diagnosisCodeableConcept, problem.getProblemCode());
+                                    claimDiagnosis.getDiagnosisCodeableConcept().getCoding().add(diagnosisCodeableConcept);
+                                    claimResource.getDiagnosis().add(claimDiagnosis);
                                 }
 
-                                ClaimCoding diagnosisCodeableConcept=new ClaimCoding();
-                                mapSystemCodeByDictionaries(diagnosisCodeableConcept, problem.getProblemCode());
-                                claimDiagnosis.getDiagnosisCodeableConcept().getCoding().add(diagnosisCodeableConcept);
-                                claimResource.getDiagnosis().add(claimDiagnosis);
                             }
                         }
                     }
 
-                    ClaimCoding subTypeCoding=new ClaimCoding();
-                    mapSystemCodeByDictionaries(subTypeCoding,epEncounterClaim.getSubType());
-                    claimResource.getSubType().getCoding().add(subTypeCoding);
+                    List<ClaimCoding> subTypeCoding=new LinkedList<>();
+                    mapSystemCodeByDictionariesList(subTypeCoding,epEncounterClaim.getSubType());
+                    claimResource.getSubType().getCoding().addAll(subTypeCoding);
 
                     ClaimItem claimItem=new ClaimItem();
 
-                    ClaimCoding itemRevenueCoding=new ClaimCoding();
-                    mapSystemCodeDisplayByDictionaries(itemRevenueCoding,epEncounterClaim.getRevenue());
-                    claimItem.getRevenue().getCoding().add(itemRevenueCoding);
+                    List<ClaimCoding> itemRevenueCoding=new LinkedList<>();
+                    mapSystemCodeByDictionariesList(itemRevenueCoding,epEncounterClaim.getRevenue());
+                    claimItem.getRevenue().getCoding().addAll(itemRevenueCoding);
 
                     claimItem.setSequence(1);
                     claimItem.setServicedDate(getFormattedDate(epEncounterClaim.getStartDateString()));

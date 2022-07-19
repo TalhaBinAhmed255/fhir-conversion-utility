@@ -85,7 +85,7 @@ public class DataService {
             LOGGER.info("Bundle Saved!!!!");
             System.exit(0);
         }catch(Exception e){
-            LOGGER.error("Exception Occured for PatientId" +patientId);
+            LOGGER.error("Exception Occured for PatientId" +patientId, e);
         }
     }
 
@@ -134,7 +134,7 @@ public class DataService {
         while(true){
             if(executorService.isTerminated()){
                 executorService.shutdown();
-                LOGGER.info("Thread pool Succesfully shutdown!!");
+                LOGGER.info("Thread pool Successfully shutdown!!");
                 break;
             }
             try {

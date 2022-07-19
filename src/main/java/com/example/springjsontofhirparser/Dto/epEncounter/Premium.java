@@ -21,4 +21,6 @@ public class Premium {
     String lti;
     String lis;
     String orec;
+    String lisHist;
+
 }
