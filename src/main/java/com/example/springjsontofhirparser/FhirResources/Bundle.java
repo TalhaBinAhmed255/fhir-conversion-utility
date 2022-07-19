@@ -1,6 +1,7 @@
 package com.example.springjsontofhirparser.FhirResources;
 
 
+import com.example.springjsontofhirparser.Dto.DeliveryProcedureInfo;
 import com.example.springjsontofhirparser.Dto.PayerInfo;
 import com.example.springjsontofhirparser.Dto.epEncounter.Premium;
 import com.example.springjsontofhirparser.Util.Constants;
@@ -24,6 +25,7 @@ public class Bundle {
     private String gender;
     private String birthDate;
     private List<PayerInfo> payerInfo;
+    private List<DeliveryProcedureInfo> deliveryProcedureInfos;
     private String hospiceFlag;
     private String ethnicity;
     private String ethnicityCode;

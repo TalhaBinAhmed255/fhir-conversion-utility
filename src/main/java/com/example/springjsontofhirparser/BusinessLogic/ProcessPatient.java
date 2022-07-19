@@ -767,15 +767,21 @@ public class ProcessPatient implements Runnable{
                         }
                     }
 
+                    if(epEncounterClaim.getSubType()!=null){
                     List<ClaimCoding> subTypeCoding=new LinkedList<>();
                     mapSystemCodeByDictionariesList(subTypeCoding,epEncounterClaim.getSubType());
                     claimResource.getSubType().getCoding().addAll(subTypeCoding);
+                    }
+
 
                     ClaimItem claimItem=new ClaimItem();
 
+                    if(epEncounterClaim.getRevenue()!=null){
                     List<ClaimCoding> itemRevenueCoding=new LinkedList<>();
                     mapSystemCodeByDictionariesList(itemRevenueCoding,epEncounterClaim.getRevenue());
                     claimItem.getRevenue().getCoding().addAll(itemRevenueCoding);
+                    }
+
 
                     claimItem.setSequence(1);
                     claimItem.setServicedDate(getFormattedDate(epEncounterClaim.getStartDateString()));
@@ -1029,12 +1035,42 @@ public class ProcessPatient implements Runnable{
         }
     }
 
+    List<DeliveryProcedureInfo> getDeliveryProcedure(EpEncounter epEncounter){
+        List<DeliveryProcedureInfo> deliveryProcedureInfos=null;
+
+        if(epEncounter.getProcedurePerformed()!=null){
+             deliveryProcedureInfos=new LinkedList<>();
+            for(int i=0;i<epEncounter.getProcedurePerformed().size();i++) {
+
+                if(epEncounter.getProcedurePerformed().get(i).getPosCode()==null || !epEncounter.getProcedurePerformed().get(i).getPosCode().equals("81")) {
+
+                    ValueSetDictionary valueSetDictionary=getValueSetDictionaryByCode(epEncounter.getProcedurePerformed().get(i).getProcedureCode());
+
+                    if(null!=valueSetDictionary.getCode() && valueSetDictionary.getValueSetName().equals("Deliveries")){
+                        DeliveryProcedureInfo deliveryProcedureInfo=new DeliveryProcedureInfo();
+                        deliveryProcedureInfo.setProcedureCode(epEncounter.getProcedurePerformed().get(i).getProcedureCode());
+                        deliveryProcedureInfo.setPerformedDate(epEncounter.getProcedurePerformed().get(i).getPerformedDate());
+                        deliveryProcedureInfo.setEndDate(epEncounter.getProcedurePerformed().get(i).getEndDate());
+                        deliveryProcedureInfo.setEndDateString(epEncounter.getProcedurePerformed().get(i).getEndDateString());
+                        deliveryProcedureInfo.setEndTimeString(epEncounter.getProcedurePerformed().get(i).getEndTimeString());
+                        deliveryProcedureInfo.setPerformedDateString(epEncounter.getProcedurePerformed().get(i).getPerformedDateString());
+                        deliveryProcedureInfo.setPerformedTimeString(epEncounter.getProcedurePerformed().get(i).getPerformedTimeString());
+                        deliveryProcedureInfo.setPerformedTimeString(epEncounter.getProcedurePerformed().get(i).getPerformedTimeString());
+                        deliveryProcedureInfos.add(deliveryProcedureInfo);
+                    }
+                }
+            }
+        }
+        return deliveryProcedureInfos;
+    }
+
     void mapBundleItems(Bundle bundle,EpEncounter epEncounter){
         bundle.setGender(epEncounter.getGender().equals("F") ? "female" : "male");
         bundle.setBirthDate(getFormattedDate(epEncounter.getBirthDateString()));
         bundle.setPayerInfo(mapPayersInfoInList(epEncounter.getInsurance()));
         bundle.setHospiceFlag(getHospiceFlag(epEncounter.getPremium()));
         bundle.setPremium(epEncounter.getPremium());
+        bundle.setDeliveryProcedureInfos(getDeliveryProcedure(epEncounter));
 
         bundle.setEthnicity(epEncounter.getEthnicity());
         bundle.setEthnicityCode(epEncounter.getEthnicityCode());
