@@ -230,8 +230,8 @@ public class ProcessPatient implements Runnable{
         }
     }
 
-    public void mapSystemCodeByDictionaries(ClaimCoding coding,String code){
-        ValueSetDictionary valueSetDictionary=getValueSetDictionaryByCode(code);
+    public void mapSystemCodeByDictionaries(ClaimCoding coding, String code){
+        ValueSetDictionary valueSetDictionary = getValueSetDictionaryByCode(code);
         if( valueSetDictionary!=null && valueSetDictionary.getSystem()!=null ){
             coding.setSystem(valueSetDictionary.getSystem());
             coding.setCode(code);
@@ -770,12 +770,20 @@ public class ProcessPatient implements Runnable{
                     List<ClaimCoding> subTypeCoding=new LinkedList<>();
                     mapSystemCodeByDictionariesList(subTypeCoding,epEncounterClaim.getSubType());
                     claimResource.getSubType().getCoding().addAll(subTypeCoding);
+//                    ClaimCoding subTypeCoding=new ClaimCoding();
+//                    subTypeCoding.setSystem("https://www.nubc.org/CodeSystem/TypeOfBill");
+//                    subTypeCoding.setCode(epEncounterClaim.getSubType());
+//                    claimResource.getSubType().getCoding().add(subTypeCoding);
 
                     ClaimItem claimItem=new ClaimItem();
 
-                    List<ClaimCoding> itemRevenueCoding=new LinkedList<>();
-                    mapSystemCodeByDictionariesList(itemRevenueCoding,epEncounterClaim.getRevenue());
-                    claimItem.getRevenue().getCoding().addAll(itemRevenueCoding);
+//                    List<ClaimCoding> itemRevenueCoding=new LinkedList<>();
+//                    mapSystemCodeByDictionariesList(itemRevenueCoding,epEncounterClaim.getRevenue());
+//                    claimItem.getRevenue().getCoding().addAll(itemRevenueCoding);
+                    ClaimCoding itemRevenueCoding=new ClaimCoding();
+                    itemRevenueCoding.setSystem("https://www.nubc.org/CodeSystem/RevenueCodes");
+                    itemRevenueCoding.setCode(epEncounterClaim.getRevenue());
+                    claimItem.getRevenue().getCoding().add(itemRevenueCoding);
 
                     claimItem.setSequence(1);
                     claimItem.setServicedDate(getFormattedDate(epEncounterClaim.getStartDateString()));

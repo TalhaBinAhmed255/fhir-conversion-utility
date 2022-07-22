@@ -18,6 +18,8 @@ public class Premium {
     String startDateString;
     Date startDate;
     Date startDateTime;
+    Date endDate;
+    Date endDateTime;
     String lti;
     String lis;
     String orec;
