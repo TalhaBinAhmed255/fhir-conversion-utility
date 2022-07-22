@@ -348,12 +348,19 @@ public class ProcessPatient implements Runnable{
                 mapCoverageCodingObject(coding,insurance.getPayerCode());
                 type.getCoding().add(coding);
 
+                if(insurance.getDrugBenefit().equals("Y")){
+                    Coding drugTypeCoding=new Coding();
+
+                    mapCoverageCodingObject(drugTypeCoding,insurance.getPayerCode());
+                    drugTypeCoding.setCode("DRUGPOL");
+                    type.getCoding().add(drugTypeCoding);
+                }
+
                 coverage.setType(type);
 
                 ResourceChild resourceChild=new ResourceChild();
                 resourceChild.setResource(coverage);
                 resourceList.add(resourceChild);
-
 
             }
 
@@ -714,8 +721,14 @@ public class ProcessPatient implements Runnable{
                     claimResource.setStatus("active");
 
                     ClaimCoding claimTypeCoding = new ClaimCoding();
-                    if(epEncounterClaim.getPosCode()!=null) {
-                        claimTypeCoding.setCode(getClaimType(Integer.parseInt(epEncounterClaim.getPosCode())));
+
+                    if(epEncounterClaim.getSheetName().equals("pharmacy")){
+                        claimTypeCoding.setCode("pharmacy");
+                    }
+                    else{
+                        if(epEncounterClaim.getPosCode()!=null) {
+                            claimTypeCoding.setCode(getClaimType(Integer.parseInt(epEncounterClaim.getPosCode())));
+                        }
                     }
                     claimTypeCoding.setSystem("http://terminology.hl7.org/CodeSystem/claim-type");
                     claimResource.getType().getCoding().add(claimTypeCoding);
@@ -735,7 +748,7 @@ public class ProcessPatient implements Runnable{
                             }
 
                             if (((problem.getPosCode()==null) || !(problem.getPosCode().equals("81")))
-                                    && epEncounterClaim.getVisitId().equals(problem.getVisitId())
+                                    && ( (epEncounterClaim.getVisitId()!=null) && epEncounterClaim.getVisitId().equals(problem.getVisitId()) )
                             ) {
                                 ClaimDiagnosis claimDiagnosis = new ClaimDiagnosis();
                                 if(problem.getProblemPriority() != null) {
@@ -783,6 +796,11 @@ public class ProcessPatient implements Runnable{
                     claimItem.getRevenue().getCoding().add(itemRevenueCoding);
                     }
 
+                    if(epEncounterClaim.getPharmacyCode()!=null){
+                        List<ClaimCoding> itemRevenueCoding=new LinkedList<>();
+                        mapSystemCodeByDictionariesList(itemRevenueCoding,epEncounterClaim.getPharmacyCode());
+                        claimItem.getProductOrService().getCoding().addAll(itemRevenueCoding);
+                    }
 
                     claimItem.setSequence(1);
                     claimItem.setServicedDate(getFormattedDate(epEncounterClaim.getStartDateString()));

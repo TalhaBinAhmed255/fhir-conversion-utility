@@ -16,4 +16,5 @@ public class ClaimItem {
     private List<Reference> encounter=new LinkedList<>();
     private Period serviced=new Period();
     private ClaimType revenue=new ClaimType();
+    private ClaimType productOrService=new ClaimType();
 }

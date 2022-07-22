@@ -32,4 +32,6 @@ public class EpEncounterClaim {
     private Date dischargeDateTime;
     private String revenue;
     private String subType;
+    private String pharmacyCode;
+    private String sheetName;
 }
