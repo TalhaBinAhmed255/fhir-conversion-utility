@@ -66,7 +66,7 @@ public class StoreBundleListTask implements Runnable{
         this.valueSetRepository=valueSetRepository;
     }
 
-    void saveBundles(List<Bundle> bundleList) {
+    synchronized void  saveBundles(List<Bundle> bundleList) {
         bundleRepository.saveAll(bundleList);
         LOGGER.info("Bundle of batch Size "+bundleList.size()+" is stored!!");
     }
