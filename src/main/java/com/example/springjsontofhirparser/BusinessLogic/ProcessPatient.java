@@ -370,8 +370,12 @@ public class ProcessPatient implements Runnable{
 
     String getEncounterCode(EpEncounter epEncounter){
         if(epEncounter!=null){
-            if(epEncounter.getEncounterStatus().get(0)!=null){
-                return epEncounter.getEncounterStatus().get(0).getCode();
+            if(epEncounter.getEncounterStatus()!=null){
+                if(epEncounter.getEncounterStatus().size()>0){
+                    if(epEncounter.getEncounterStatus().get(0)!=null){
+                        return epEncounter.getEncounterStatus().get(0).getCode();
+                    }
+                }
             }
         }
         return "";
